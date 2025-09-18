@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]                  # Триггер: запуск при пуше в ветку main
 env:
-  IMAGE_NAME: exp7/exp7           # Имя Docker-образа (ваш репозиторий на Docker Hub)
+  IMAGE_NAME: tolebi1/exp7           # Имя Docker-образа (ваш репозиторий на Docker Hub)
 jobs:
   # ====================== Build & Push Docker Image ======================
   build-and-push:                         # Джоб для сборки и публикации образа
