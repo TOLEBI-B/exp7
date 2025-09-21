@@ -45,7 +45,7 @@ jobs:
         run: |                            # Настраиваем kubeconfig из GitHub Secrets
           mkdir -p "$HOME/.kube"
           cat > "$HOME/.kube/config" <<'EOF'
-          ${{ secrets.KUBECONFIG }}
+          ${{ secrets.KUBECONFIG_CONTENT }}
           EOF
 
       - name: Install cert-manager
