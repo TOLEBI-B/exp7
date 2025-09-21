@@ -43,15 +43,11 @@ jobs:
       - name: Setup Kubeconfig
         shell: bash
         run: |                            # Настраиваем kubeconfig из GitHub Secrets
-          mkdir -p "$HOME/.kube"
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG_CONTENT }}" | sed 's/\\n/\n/g' > $HOME/.kube/config
+          cat <<EOF > $HOME/.kube/config
+          ${{ secrets.KUBECONFIG_CONTENT }}
+          EOF
           chmod 600 $HOME/.kube/config
-      - name: Debug kubeconfig raw
-        run: |
-         echo "------ RAW kubeconfig ------"
-         cat -A $HOME/.kube/config | head -20
-         echo "----------------------------"
       - name: Install cert-manager
         run: |                            # Устанавливаем cert-manager (для TLS)
             helm repo add jetstack https://charts.jetstack.io
