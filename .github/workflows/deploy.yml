@@ -42,12 +42,12 @@ jobs:
 
       - name: Setup Kubeconfig
         shell: bash
-        - name: Setup Kubeconfig
-  run: |
-    mkdir -p $HOME/.kube
-    echo "${{ secrets.KUBECONFIG_CONTENT }}" | tr -d '\r' | sed 's/\\n/\n/g' > $HOME/.kube/config
-    chmod 600 $HOME/.kube/config
-
+        run: |                            # Настраиваем kubeconfig из GitHub Secrets
+          mkdir -p "$HOME/.kube"
+          cat > "$HOME/.kube/config" <<'EOF'
+          ${{ secrets.KUBECONFIG_CONTENT }}
+          EOF
+          chmod 600 $HOME/.kube/config
 
       - name: Install cert-manager
         run: |                            # Устанавливаем cert-manager (для TLS)
