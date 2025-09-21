@@ -44,11 +44,19 @@ jobs:
         shell: bash
         run: |                            # Настраиваем kubeconfig из GitHub Secrets
           mkdir -p "$HOME/.kube"
-          cat > "$HOME/.kube/config" <<'EOF'
-          ${{ secrets.KUBECONFIG_CONTENT }}
-          EOF
-          chmod 600 $HOME/.kube/config
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config.raw
 
+          if grep -q '\\n' $HOME/.kube/config.raw; then
+            sed 's/\\n/\n/g' $HOME/.kube/config.raw > $HOME/.kube/config
+          else
+            mv $HOME/.kube/config.raw $HOME/.kube/config
+          fi
+          chmod 600 $HOME/.kube/config
+      - name: Debug kubeconfig
+        run: |
+          echo "====== ~/.kube/config ======"
+          cat $HOME/.kube/config
+          echo "============================"
       - name: Install cert-manager
         run: |                            # Устанавливаем cert-manager (для TLS)
             helm repo add jetstack https://charts.jetstack.io
