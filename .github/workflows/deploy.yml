@@ -52,12 +52,22 @@ jobs:
         run: |                            # Устанавливаем cert-manager (для TLS)
             helm repo add jetstack https://charts.jetstack.io
             helm repo update
-            helm upgrade --install cert-manager jetstack/cert-manager \
-              --namespace cert-manager \
-              --create-namespace \
-              --set installCRDs=true
+            # Проверка зависшего Helm release
+            if kubectl get secret -n cert-manager | grep -q "sh.helm.release.v1.cert-manager"; then
+             echo "⚠️ Found stuck Helm release for cert-manager. Deleting..."
+             kubectl delete secret -n cert-manager -l owner=helm,name=cert-manager || true
+            fi
 
-            # Ждём пока все поды cert-manager станут Ready
+            if ! kubectl get deployment cert-manager -n cert-manager >/dev/null 2>&1; then
+            echo "➡️ Installing cert-manager..."
+            helm upgrade --install cert-manager jetstack/cert-manager \
+            --namespace cert-manager \
+            --create-namespace \
+            --set installCRDs=true
+            else
+              echo "✅ cert-manager already running, skipping install."
+            fi
+
             kubectl rollout status deployment/cert-manager -n cert-manager --timeout=180s
             kubectl rollout status deployment/cert-manager-webhook -n cert-manager --timeout=180s
             kubectl rollout status deployment/cert-manager-cainjector -n cert-manager --timeout=180s
